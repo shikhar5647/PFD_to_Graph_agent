@@ -1,48 +1,48 @@
 # Core dependencies
-streamlit==1.31.0
-langgraph==0.0.26
-langchain==0.1.6
-langchain-openai==0.0.5
-langchain-anthropic==0.1.4
+streamlit
+langgraph
+langchain
+langchain-openai
+langchain-anthropic
 
 # Graph and visualization
-networkx==3.2.1
-matplotlib==3.8.2
-plotly==5.18.0
-pyvis==0.3.2
+networkx
+matplotlib
+plotly
+pyvis
 
 # Image processing
-opencv-python==4.9.0.80
-Pillow==10.2.0
-scikit-image==0.22.0
+opencv-python
+Pillow
+scikit-image
 
 # OCR and text extraction
-pytesseract==0.3.10
-easyocr==1.7.0
+pytesseract
+easyocr
 
 # Computer Vision / ML
-torch==2.1.2
-torchvision==0.16.2
-ultralytics==8.1.10  # For YOLO
-transformers==4.37.2
+torch
+torchvision
+ultralytics  # For YOLO
+transformers
 
 # PyFlowsheet integration
 # pyflowsheet  # Uncomment if available
 
 # Data processing
-numpy==1.26.3
-pandas==2.1.4
-pydantic==2.5.3
+numpy
+pandas
+pydantic
 
 # Utilities
-python-dotenv==1.0.0
-pyyaml==6.0.1
-tqdm==4.66.1
+python-dotenv
+pyyaml
+tqdm
 
 # Visualization
-graphviz==0.20.1
-seaborn==0.13.1
+graphviz
+seaborn
 
 # Optional: Enhanced features
-pdf2image==1.17.0  # For PDF PFDs
-cairosvg==2.7.1    # For SVG export
+pdf2image  # For PDF PFDs
+cairosvg  # For SVG export
