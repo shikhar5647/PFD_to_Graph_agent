@@ -18,3 +18,24 @@ class EquipmentType(str, Enum):
     PRODUCT = "product"
     UTILITY = "utility"
     UNKNOWN = "unknown"
+    
+class Equipment(BaseModel):
+    """Represents a process equipment unit (node in graph)"""
+    id: str = Field(..., description="Unique identifier for equipment")
+    label: str = Field(..., description="Equipment label from PFD")
+    equipment_type: EquipmentType = Field(..., description="Type of equipment")
+    
+    # Spatial information from image
+    bbox: Optional[List[float]] = Field(None, description="Bounding box [x, y, w, h]")
+    center: Optional[List[float]] = Field(None, description="Center coordinates [x, y]")
+    
+    # Process attributes
+    properties: Dict[str, any] = Field(default_factory=dict, description="Equipment properties")
+    control_relevant: bool = Field(default=False, description="Key unit for control structure")
+    
+    # Additional metadata
+    confidence: float = Field(default=1.0, description="Detection confidence")
+    notes: Optional[str] = Field(None, description="Additional notes")
+    
+    class Config:
+        use_enum_values = True
