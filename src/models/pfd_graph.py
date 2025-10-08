@@ -1,5 +1,5 @@
 import networkx as nx
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional,Any
 from pydantic import BaseModel, Field
 from .equipment import Equipment
 from .stream import Stream
@@ -11,7 +11,7 @@ class PFDGraph(BaseModel):
     stream_list: List[Stream] = Field(default_factory=list)
     
     # Metadata
-    metadata: Dict[str, any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     source_image: Optional[str] = Field(None, description="Source image path")
     
     def to_networkx(self) -> nx.DiGraph:

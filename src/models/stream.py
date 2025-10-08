@@ -1,4 +1,5 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Any
+from enum import Enum
 from pydantic import BaseModel, Field
 
 class StreamType(str, Enum):
@@ -17,10 +18,10 @@ class Stream(BaseModel):
     
     # Stream properties
     stream_type: StreamType = Field(default=StreamType.MATERIAL, description="Type of stream")
-    label: Optional[str] = Field(None, description="Stream label if any")
+    label: Optional[str] = Field(None, description="Stream label if Any")
     
     # Flow properties (if available)
-    properties: Dict[str, any] = Field(default_factory=dict, description="Stream properties")
+    properties: Dict[str, Any] = Field(default_factory=dict, description="Stream properties")
     phase: Optional[str] = Field(None, description="Phase (liquid/gas/solid)")
     
     # Visual information
