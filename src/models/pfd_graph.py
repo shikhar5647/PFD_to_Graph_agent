@@ -1,8 +1,8 @@
 import networkx as nx
 from typing import List, Dict, Optional,Any
 from pydantic import BaseModel, Field
-from .equipment import Equipment
-from .stream import Stream
+from .equipment import Equipment, EquipmentType
+from .stream import Stream, StreamType
 
 class PFDGraph(BaseModel):
     """Complete PFD graph representation"""

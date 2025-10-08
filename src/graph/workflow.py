@@ -1,5 +1,6 @@
 from langgraph.graph import StateGraph, END
 from typing import Dict
+from PIL import Image
 from .state import PFDProcessingState
 from ..agents.vision_agent import VisionAgent
 from ..agents.ocr_agent import OCRAgent
@@ -149,7 +150,7 @@ class PFDWorkflow:
         
         return "refine"
     
-    def process(self, image_path: str, image: Image.Image) -> PFDProcessingState:
+    def process(self, image_path: str, image: Image) -> PFDProcessingState:
         """Process a PFD image through the workflow"""
         initial_state = PFDProcessingState(
             image=image,

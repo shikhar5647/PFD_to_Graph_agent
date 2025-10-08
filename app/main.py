@@ -8,8 +8,8 @@ from pyvis.network import Network
 import tempfile
 import os
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.graph.workflow import PFDWorkflow
 from src.utils.visualization import GraphVisualizer
