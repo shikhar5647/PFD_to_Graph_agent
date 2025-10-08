@@ -4,6 +4,7 @@ langgraph
 langchain
 langchain-openai
 langchain-anthropic
+langchain-google-genai
 
 # Graph and visualization
 networkx

@@ -75,14 +75,14 @@ def main():
         # LLM Settings
         st.subheader("LLM Settings")
         api_key = st.text_input(
-            "Anthropic API Key",
+            "Gemini API key",
             type="password",
-            help="Enter your Anthropic API key"
+            help="Enter your Gemini API key"
         )
         
         model = st.selectbox(
             "Model",
-            ["claude-3-5-sonnet-20241022", "claude-3-opus-20240229"],
+            ["gemini-2.5-pro", "gemini-2.5-flash"],
             index=0
         )
         

@@ -2,14 +2,18 @@ import cv2
 import numpy as np
 from typing import Dict, List
 from langchain.chat_models import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import ChatPromptTemplate
+from PIL import Image
 
 class TopologyAgent:
     """Agent for detecting connections between equipment"""
     
     def __init__(self, llm_config: Dict):
-        self.llm = ChatAnthropic(
-            model=llm_config.get("model", "claude-3-5-sonnet-20241022"),
-            temperature=0
+        self.llm = ChatGoogleGenerativeAI(
+            model=llm_config.get("model", "gemini-2.0-flash-exp"),
+            temperature=0,
+            google_api_key=llm_config.get("api_key")
         )
     
     def detect_connections(self, image: Image.Image, symbols: List[Dict]) -> Dict:

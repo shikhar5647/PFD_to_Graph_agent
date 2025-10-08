@@ -6,14 +6,17 @@ from langchain.chat_models import ChatAnthropic
 from langchain.prompts import ChatPromptTemplate
 import base64
 from io import BytesIO
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 
 class VisionAgent:
     """Agent for detecting equipment symbols in PFD using vision models"""
     
     def __init__(self, llm_config: Dict):
-        self.llm = ChatAnthropic(
-            model=llm_config.get("model", "claude-3-5-sonnet-20241022"),
-            temperature=0
+        self.llm = ChatGoogleGenerativeAI(
+            model=llm_config.get("model", "gemini-2.0-flash-exp"),
+            temperature=0,
+            google_api_key=llm_config.get("api_key")
         )
         
         self.prompt = ChatPromptTemplate.from_messages([

@@ -3,15 +3,18 @@ import pytesseract
 from PIL import Image
 from typing import Dict, List
 import numpy as np
+from langchain_google_genai import ChatGoogleGenerativeAI
+
 
 class OCRAgent:
     """Agent for extracting text labels from PFD"""
     
     def __init__(self, llm_config: Dict):
         self.reader = easyocr.Reader(['en'])
-        self.llm = ChatAnthropic(
-            model=llm_config.get("model", "claude-3-5-sonnet-20241022"),
-            temperature=0
+        self.llm = ChatGoogleGenerativeAI(
+            model=llm_config.get("model", "gemini-2.5-pro"),
+            temperature=0,
+            google_api_key=llm_config.get("api_key")
         )
     
     def extract(self, image: Image.Image, detected_symbols: List[Dict]) -> Dict:
