@@ -9,12 +9,13 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 class OCRAgent:
     """Agent for extracting text labels from PFD"""
     
-    def __init__(self, llm_config: Dict):
+    def __init__(self, llm_config: Dict | None = None):
         self.reader = easyocr.Reader(['en'])
+        cfg = llm_config or {}
         self.llm = ChatGoogleGenerativeAI(
-            model=llm_config.get("model", "gemini-2.5-pro"),
+            model=cfg.get("model", "gemini-2.5-pro"),
             temperature=0,
-            google_api_key=llm_config.get("api_key")
+            google_api_key=cfg.get("api_key")
         )
     
     def extract(self, image: Image.Image, detected_symbols: List[Dict]) -> Dict:
@@ -24,10 +25,14 @@ class OCRAgent:
         # Run EasyOCR
         results_easyocr = self.reader.readtext(img_array)
         
-        # Run Tesseract as backup
-        results_tesseract = pytesseract.image_to_data(
-            image, output_type=pytesseract.Output.DICT
-        )
+        # Run Tesseract as backup (optional)
+        try:
+            results_tesseract = pytesseract.image_to_data(
+                image, output_type=pytesseract.Output.DICT
+            )
+        except Exception:
+            # Tesseract not available; continue with EasyOCR-only
+            results_tesseract = {"text": [], "left": [], "top": [], "width": [], "height": []}
         
         # Parse and associate labels with equipment
         labels = self._associate_labels_with_equipment(

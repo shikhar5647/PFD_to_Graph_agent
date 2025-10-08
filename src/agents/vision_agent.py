@@ -13,9 +13,9 @@ from langchain_core.messages import HumanMessage
 class VisionAgent:
     """Agent for detecting equipment symbols in PFD using vision models"""
     
-    def _init_(self, llm_config: Dict):
+    def __init__(self, llm_config: Dict):
         self.llm = ChatGoogleGenerativeAI(
-            model=llm_config.get("model", "gemini-2.0-flash-exp"),
+            model=llm_config.get("model", "gemini-2.5-pro"),
             temperature=0,
             google_api_key=llm_config.get("api_key")
         )
