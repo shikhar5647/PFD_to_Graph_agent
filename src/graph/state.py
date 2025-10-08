@@ -14,7 +14,7 @@ class PFDProcessingState(TypedDict):
     symbol_confidence: float
     
     # OCR results
-    extracted_labels: Annotated[Dict[str, str], operator.add]
+    extracted_labels: Annotated[Dict[str, str], operator.or_]
     text_regions: List[Dict]
     
     # Topology analysis

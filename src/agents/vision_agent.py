@@ -7,12 +7,13 @@ from langchain.prompts import ChatPromptTemplate
 import base64
 from io import BytesIO
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage
 
 
 class VisionAgent:
     """Agent for detecting equipment symbols in PFD using vision models"""
     
-    def __init__(self, llm_config: Dict):
+    def _init_(self, llm_config: Dict):
         self.llm = ChatGoogleGenerativeAI(
             model=llm_config.get("model", "gemini-2.0-flash-exp"),
             temperature=0,
@@ -45,17 +46,18 @@ class VisionAgent:
     
     def analyze(self, image: Image.Image) -> Dict:
         """Analyze PFD image to detect equipment"""
-        # Convert PIL Image to base64 for Claude
+        # Convert PIL Image to base64 and wrap as data URL for Gemini
         buffered = BytesIO()
         image.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode()
+        data_url = f"data:image/png;base64,{img_str}"
         
-        # Use Claude's vision capabilities
+        # Send multimodal user message compatible with ChatGoogleGenerativeAI
         response = self.llm.invoke([
-            {"role": "user", "content": [
-                {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": img_str}},
-                {"type": "text", "text": "Identify all equipment symbols in this PFD"}
-            ]}
+            HumanMessage(content=[
+                {"type": "text", "text": "Identify all equipment symbols in this PFD"},
+                {"type": "image_url", "image_url": data_url}
+            ])
         ])
         
         # Also use traditional CV for backup

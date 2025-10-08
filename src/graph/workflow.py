@@ -55,72 +55,72 @@ class PFDWorkflow:
     
     def vision_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Vision analysis node - detect equipment symbols"""
-        result = self.vision_agent.analyze(state.image)
-        state.detected_symbols = result["symbols"]
-        state.symbol_confidence = result["confidence"]
-        state.processing_stage = "vision_complete"
+        result = self.vision_agent.analyze(state["image"])
+        state["detected_symbols"] = result["symbols"]
+        state["symbol_confidence"] = result["confidence"]
+        state["processing_stage"] = "vision_complete"
         return state
 
     def ocr_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """OCR node - extract text labels"""
         result = self.ocr_agent.extract(
-            state.image,
-            state.detected_symbols
+            state["image"],
+            state["detected_symbols"]
         )
-        state.extracted_labels = result["labels"]
-        state.text_regions = result["regions"]
-        state.processing_stage = "ocr_complete"
+        state["extracted_labels"] = result["labels"]
+        state["text_regions"] = result["regions"]
+        state["processing_stage"] = "ocr_complete"
         return state
 
     def topology_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Topology detection node - find connections"""
         result = self.topology_agent.detect_connections(
-            state.image,
-            state.detected_symbols
+            state["image"],
+            state["detected_symbols"]
         )
-        state.connections = result["connections"]
-        state.connection_confidence = result["confidence"]
-        state.processing_stage = "topology_complete"
+        state["connections"] = result["connections"]
+        state["connection_confidence"] = result["confidence"]
+        state["processing_stage"] = "topology_complete"
         return state
 
     def graph_builder_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Graph construction node - build NetworkX graph"""
         result = self.graph_builder.build_graph(
-            symbols=state.detected_symbols,
-            labels=state.extracted_labels,
-            connections=state.connections
+            symbols=state["detected_symbols"],
+            labels=state["extracted_labels"],
+            connections=state["connections"]
         )
-        state.equipment_nodes = result["nodes"]
-        state.stream_edges = result["edges"]
-        state.graph_data = result["graph_dict"]
-        state.networkx_graph = result["networkx"]
-        state.processing_stage = "graph_complete"
+        state["equipment_nodes"] = result["nodes"]
+        state["stream_edges"] = result["edges"]
+        state["graph_data"] = result["graph_dict"]
+        state["networkx_graph"] = result["networkx"]
+        state["processing_stage"] = "graph_complete"
         return state
 
     def validation_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Validation node - validate graph structure"""
         result = self.validator.validate(
-            state.networkx_graph,
-            state.graph_data
+            state["networkx_graph"],
+            state["graph_data"]
         )
-        state.validation_passed = result["passed"]
-        state.validation_errors = result["errors"]
-        state.warnings = result["warnings"]
-        state.processing_stage = "validation_complete"
+        state["validation_passed"] = result["passed"]
+        state["validation_errors"] = result["errors"]
+        state["warnings"] = result["warnings"]
+        state["processing_stage"] = "validation_complete"
         return state
 
     def refinement_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Refinement node - fix validation errors"""
         # Use LLM to analyze errors and suggest fixes
         result = self.validator.refine(
-            state.networkx_graph,
-            state.validation_errors
+            state["networkx_graph"],
+            state["validation_errors"]
         )
-        state.equipment_nodes = result["refined_nodes"]
-        state.stream_edges = result["refined_edges"]
-        state.processing_stage = "refinement_complete"
+        state["equipment_nodes"] = result["refined_nodes"]
+        state["stream_edges"] = result["refined_edges"]
+        state["processing_stage"] = "refinement_complete"
         # Increment refinement count
-        state.refinement_count = getattr(state, "refinement_count", 0) + 1
+        state["refinement_count"] = state.get("refinement_count", 0) + 1
         return state
     
     def should_refine(self, state: PFDProcessingState) -> str:
