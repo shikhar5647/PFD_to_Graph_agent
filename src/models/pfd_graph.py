@@ -1,8 +1,9 @@
+# src/models/pfd_graph.py
 import networkx as nx
-from typing import List, Dict, Optional
-from pydantic import BaseModel, Field
-from .equipment import Equipment , EquipmentType
-from .stream import Stream , StreamType
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field, ConfigDict
+from .equipment import Equipment
+from .stream import Stream
 
 class PFDGraph(BaseModel):
     """Complete PFD graph representation"""
@@ -11,8 +12,10 @@ class PFDGraph(BaseModel):
     stream_list: List[Stream] = Field(default_factory=list)
     
     # Metadata
-    metadata: Dict[str, any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     source_image: Optional[str] = Field(None, description="Source image path")
+    
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
     def to_networkx(self) -> nx.DiGraph:
         """Convert to NetworkX directed graph"""
@@ -52,6 +55,9 @@ class PFDGraph(BaseModel):
     @classmethod
     def from_networkx(cls, G: nx.DiGraph) -> "PFDGraph":
         """Create PFDGraph from NetworkX graph"""
+        from .equipment import EquipmentType
+        from .stream import StreamType
+        
         equipment_list = []
         for node_id, data in G.nodes(data=True):
             equipment_list.append(Equipment(
@@ -83,6 +89,3 @@ class PFDGraph(BaseModel):
             stream_list=stream_list,
             metadata=G.graph.get('metadata', {})
         )
-    
-    class Config:
-        arbitrary_types_allowed = True

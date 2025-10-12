@@ -1,3 +1,4 @@
+# src/models/equipment.py
 from typing import Optional, Dict, List, Any
 from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
@@ -30,12 +31,11 @@ class Equipment(BaseModel):
     center: Optional[List[float]] = Field(None, description="Center coordinates [x, y]")
     
     # Process attributes
-    properties: Dict[str, any] = Field(default_factory=dict, description="Equipment properties")
+    properties: Dict[str, Any] = Field(default_factory=dict, description="Equipment properties")
     control_relevant: bool = Field(default=False, description="Key unit for control structure")
     
     # Additional metadata
     confidence: float = Field(default=1.0, description="Detection confidence")
     notes: Optional[str] = Field(None, description="Additional notes")
     
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

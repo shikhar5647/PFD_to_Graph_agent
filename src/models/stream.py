@@ -1,7 +1,7 @@
-from typing import Optional, Dict
-from pydantic import BaseModel, Field
+# src/models/stream.py
+from typing import Optional, Dict, List, Any
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
-from typing import List
 
 class StreamType(str, Enum):
     """Types of process streams"""
@@ -22,12 +22,11 @@ class Stream(BaseModel):
     label: Optional[str] = Field(None, description="Stream label if any")
     
     # Flow properties (if available)
-    properties: Dict[str, any] = Field(default_factory=dict, description="Stream properties")
+    properties: Dict[str, Any] = Field(default_factory=dict, description="Stream properties")
     phase: Optional[str] = Field(None, description="Phase (liquid/gas/solid)")
     
     # Visual information
     path_points: Optional[List[List[float]]] = Field(None, description="Path coordinates")
     confidence: float = Field(default=1.0, description="Detection confidence")
     
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
