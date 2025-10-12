@@ -1,6 +1,7 @@
-from typing import Optional, Dict, List, Any
-from enum import Enum
+from typing import Optional, Dict
 from pydantic import BaseModel, Field
+from enum import Enum
+from typing import List
 
 class StreamType(str, Enum):
     """Types of process streams"""
@@ -9,7 +10,7 @@ class StreamType(str, Enum):
     UTILITY = "utility"
     RECYCLE = "recycle"
     BYPASS = "bypass"
-    
+
 class Stream(BaseModel):
     """Represents a process stream (edge in graph)"""
     id: str = Field(..., description="Unique stream identifier")
@@ -18,10 +19,10 @@ class Stream(BaseModel):
     
     # Stream properties
     stream_type: StreamType = Field(default=StreamType.MATERIAL, description="Type of stream")
-    label: Optional[str] = Field(None, description="Stream label if Any")
+    label: Optional[str] = Field(None, description="Stream label if any")
     
     # Flow properties (if available)
-    properties: Dict[str, Any] = Field(default_factory=dict, description="Stream properties")
+    properties: Dict[str, any] = Field(default_factory=dict, description="Stream properties")
     phase: Optional[str] = Field(None, description="Phase (liquid/gas/solid)")
     
     # Visual information
