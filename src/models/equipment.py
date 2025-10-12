@@ -1,7 +1,6 @@
 from typing import Optional, Dict, List, Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
-
 
 class EquipmentType(str, Enum):
     """Standard equipment types in process flowsheets"""
@@ -19,7 +18,7 @@ class EquipmentType(str, Enum):
     PRODUCT = "product"
     UTILITY = "utility"
     UNKNOWN = "unknown"
-    
+
 class Equipment(BaseModel):
     """Represents a process equipment unit (node in graph)"""
     id: str = Field(..., description="Unique identifier for equipment")
@@ -31,7 +30,7 @@ class Equipment(BaseModel):
     center: Optional[List[float]] = Field(None, description="Center coordinates [x, y]")
     
     # Process attributes
-    properties: Dict[str, Any] = Field(default_factory=dict, description="Equipment properties")
+    properties: Dict[str, any] = Field(default_factory=dict, description="Equipment properties")
     control_relevant: bool = Field(default=False, description="Key unit for control structure")
     
     # Additional metadata
