@@ -1,3 +1,4 @@
+# src/agents/graph_builder_agent.py
 import networkx as nx
 from typing import Dict, List
 from ..models.pfd_graph import PFDGraph
@@ -22,7 +23,7 @@ class GraphBuilderAgent:
         
         # Create equipment nodes
         for idx, symbol in enumerate(symbols):
-            symbol_id = f"eq_{idx}"
+            symbol_id = symbol.get('id', f"eq_{idx}")
             label = labels.get(symbol_id, f"unlabeled_{idx}")
             
             equipment = Equipment(
@@ -35,17 +36,49 @@ class GraphBuilderAgent:
             )
             equipment_list.append(equipment)
         
-        # Create stream edges
+        # Create a set of valid equipment IDs for validation
+        valid_equipment_ids = {eq.id for eq in equipment_list}
+        
+        # Create stream edges - with validation
         for idx, conn in enumerate(connections):
-            stream = Stream(
-                id=f"stream_{idx}",
-                source=conn["source"],
-                target=conn["target"],
-                stream_type=StreamType.MATERIAL,
-                path_points=conn.get("path"),
-                confidence=conn.get("confidence", 1.0)
-            )
-            stream_list.append(stream)
+            source = conn.get("source")
+            target = conn.get("target")
+            
+            # Validate that both source and target exist
+            if not source or not target:
+                print(f"⚠️ Skipping connection {idx}: Missing source or target")
+                continue
+            
+            # Validate that both source and target are valid equipment IDs
+            if source not in valid_equipment_ids:
+                print(f"⚠️ Skipping connection {idx}: Invalid source '{source}'")
+                continue
+            
+            if target not in valid_equipment_ids:
+                print(f"⚠️ Skipping connection {idx}: Invalid target '{target}'")
+                continue
+            
+            # Don't create self-loops
+            if source == target:
+                print(f"⚠️ Skipping connection {idx}: Self-loop detected ({source} -> {target})")
+                continue
+            
+            try:
+                stream = Stream(
+                    id=f"stream_{idx}",
+                    source=source,
+                    target=target,
+                    stream_type=StreamType.MATERIAL,
+                    path_points=conn.get("path"),
+                    confidence=conn.get("confidence", 1.0)
+                )
+                stream_list.append(stream)
+            except Exception as e:
+                print(f"⚠️ Error creating stream {idx}: {e}")
+                continue
+        
+        print(f"✅ Created {len(equipment_list)} equipment nodes")
+        print(f"✅ Created {len(stream_list)} valid streams (skipped {len(connections) - len(stream_list)} invalid)")
         
         # Create PFDGraph object
         pfd_graph = PFDGraph(
@@ -57,9 +90,9 @@ class GraphBuilderAgent:
         nx_graph = pfd_graph.to_networkx()
         
         return {
-            "nodes": [e.dict() for e in equipment_list],
-            "edges": [s.dict() for s in stream_list],
-            "graph_dict": pfd_graph.dict(),
+            "nodes": [e.model_dump() for e in equipment_list],
+            "edges": [s.model_dump() for s in stream_list],
+            "graph_dict": pfd_graph.model_dump(),
             "networkx": nx_graph
         }
     
@@ -67,23 +100,36 @@ class GraphBuilderAgent:
         """Infer equipment type from symbol and label"""
         label_lower = label.lower()
         
-        if any(x in label_lower for x in ['reactor', 'r-', 'rx']):
+        # Check label keywords
+        if any(x in label_lower for x in ['reactor', 'r-', 'rx', 'cstr', 'pfr']):
             return EquipmentType.REACTOR
-        elif any(x in label_lower for x in ['hex', 'heat', 'exchanger']):
+        elif any(x in label_lower for x in ['hex', 'heat', 'exchanger', 'e-', 'hx']):
             return EquipmentType.HEAT_EXCHANGER
-        elif any(x in label_lower for x in ['dist', 'column', 't-']):
+        elif any(x in label_lower for x in ['dist', 'column', 't-', 'tower']):
             return EquipmentType.DISTILLATION
-        elif 'mix' in label_lower:
+        elif any(x in label_lower for x in ['mix', 'm-']):
             return EquipmentType.MIXER
-        elif 'splt' in label_lower or 'split' in label_lower:
+        elif any(x in label_lower for x in ['splt', 'split', 'splitter']):
             return EquipmentType.SPLITTER
-        elif 'pump' in label_lower or 'pp' in label_lower:
+        elif any(x in label_lower for x in ['pump', 'pp', 'p-']):
             return EquipmentType.PUMP
-        elif any(x in label_lower for x in ['valve', 'v-']):
+        elif any(x in label_lower for x in ['valve', 'v-', 'cv']):
             return EquipmentType.VALVE
-        elif 'raw' in label_lower:
+        elif any(x in label_lower for x in ['tank', 'vessel', 'drum']):
+            return EquipmentType.TANK
+        elif any(x in label_lower for x in ['separator', 'sep', 'flash']):
+            return EquipmentType.SEPARATOR
+        elif any(x in label_lower for x in ['raw', 'feed']):
             return EquipmentType.RAW_MATERIAL
-        elif 'prod' in label_lower:
+        elif any(x in label_lower for x in ['prod', 'product', 'output']):
             return EquipmentType.PRODUCT
-        else:
-            return EquipmentType.UNKNOWN
+        
+        # Check symbol type from vision detection
+        symbol_type = symbol.get('type', '').lower()
+        
+        if 'circular' in symbol_type or 'circle' in symbol_type:
+            return EquipmentType.REACTOR
+        elif 'rectangular' in symbol_type or 'rect' in symbol_type:
+            return EquipmentType.TANK
+        
+        return EquipmentType.UNKNOWN

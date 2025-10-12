@@ -4,6 +4,7 @@ from PIL import Image
 import numpy as np
 from pydantic import BaseModel, Field
 import logger 
+from models.equipment import Equipment
 class PFDProcessingState(TypedDict):
     """Shared state across all agents in the workflow"""
     # Input

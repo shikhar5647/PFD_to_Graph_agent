@@ -97,20 +97,37 @@ class PFDWorkflow:
     def graph_builder_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Graph construction node - build NetworkX graph"""
         print("🏗️ Graph Construction Stage...")
-        result = self.graph_builder.build_graph(
-            symbols=state["detected_symbols"],
-            labels=state["extracted_labels"],
-            connections=state["connections"]
-        )
         
-        return {
-            **state,
-            "equipment_nodes": result["nodes"],
-            "stream_edges": result["edges"],
-            "graph_data": result["graph_dict"],
-            "networkx_graph": result["networkx"],
-            "processing_stage": "graph_complete"
-        }
+        try:
+            result = self.graph_builder.build_graph(
+                symbols=state["detected_symbols"],
+                labels=state["extracted_labels"],
+                connections=state["connections"]
+            )
+            
+            return {
+                **state,
+                "equipment_nodes": result["nodes"],
+                "stream_edges": result["edges"],
+                "graph_data": result["graph_dict"],
+                "networkx_graph": result["networkx"],
+                "processing_stage": "graph_complete"
+            }
+        except Exception as e:
+            print(f"❌ Error in graph construction: {e}")
+            import traceback
+            traceback.print_exc()
+            
+            # Return state with error
+            return {
+                **state,
+                "equipment_nodes": [],
+                "stream_edges": [],
+                "graph_data": None,
+                "networkx_graph": None,
+                "processing_stage": "graph_error",
+                "errors": state.get("errors", []) + [f"Graph construction error: {str(e)}"]
+            }
     
     def validation_node(self, state: PFDProcessingState) -> PFDProcessingState:
         """Validation node - validate graph structure"""
